@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">校园课程与学习管理</string>
+
+    <string name="register_title">用户注册</string>
+    <string name="login_title">用户登录</string>
+    <string name="course_title">课程表</string>
+    <string name="add_course_title">添加课程</string>
+    <string name="course_grid_view_title">课程网格视图</string>
+    <string name="course_week_view_title">周视图</string>
+    <string name="course_month_view_title">月视图</string>
+    <string name="course_time_settings_title">课程时间设置</string>
+    <string name="teacher_course_title">教师课程管理</string>
+    <string name="assignment_title">作业管理</string>
+    <string name="add_assignment_title">添加作业</string>
+    <string name="grade_title">成绩查询</string>
+    <string name="teacher_grade_title">教师成绩管理</string>
+    <string name="study_plan_title">学习计划</string>
+    <string name="learning_progress_title">学习进度</string>
+    <string name="profile_title">个人中心</string>
+    <string name="student_manage_title">学生管理</string>
+    <string name="teacher_manage_title">教师管理</string>
+    <string name="user_manage_title">用户管理</string>
+    <string name="ai_chat_title">AI 学习助手</string>
+    <string name="reminder_title">提醒管理</string>
+    <string name="notice_title">系统通知</string>
+    <string name="system_settings_title">系统设置</string>
+</resources>

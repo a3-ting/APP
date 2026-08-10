@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="user_types">
+        <item>学生</item>
+        <item>教师</item>
+        <item>管理员</item>
+    </string-array>
+
+    <string-array name="week_days">
+        <item>周一</item>
+        <item>周二</item>
+        <item>周三</item>
+        <item>周四</item>
+        <item>周五</item>
+        <item>周六</item>
+        <item>周日</item>
+    </string-array>
+
+    <string-array name="assignment_status">
+        <item>未开始</item>
+        <item>进行中</item>
+        <item>已提交</item>
+        <item>已截止</item>
+    </string-array>
+
+    <string-array name="exam_types">
+        <item>平时作业</item>
+        <item>期中考试</item>
+        <item>期末考试</item>
+        <item>小测验</item>
+        <item>实验报告</item>
+        <item>其他</item>
+    </string-array>
+
+</resources>

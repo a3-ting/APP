@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>热点新闻速览 · 全国 & 湖南</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08080c;
+    --surface: #111118;
+    --card: #181820;
+    --card-h: #1f1f2a;
+    --red: #b91c1c;
+    --red-glow: rgba(185,28,28,0.18);
+    --blue: #1d4ed8;
+    --blue-glow: rgba(29,78,216,0.18);
+    --gold: #b8860b;
+    --txt: #ece8e0;
+    --muted: #6b6b80;
+    --dim: #3a3a4e;
+    --border: #252538;
+    --r: 14px;
+    --serif: 'Noto Serif SC', serif;
+    --sans: 'Noto Sans SC', sans-serif;
+  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--txt);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+  .ticker {
+    background: linear-gradient(90deg, #7f1d1d, #b91c1c, #7f1d1d);
+    padding: 7px 20px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 12px; font-weight: 500; letter-spacing: 0.04em;
+    overflow: hidden; position: relative;
+  }
+  .ticker::before, .ticker::after {
+    content: ''; position: absolute; top:0; bottom:0; width: 40px; z-index: 2;
+  }
+  .ticker::before { left:0; background: linear-gradient(90deg, #7f1d1d, transparent); }
+  .ticker::after  { right:0; background: linear-gradient(-90deg, #7f1d1d, transparent); }
+  .ticker-badge {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.85);
+  }
+  .live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #fff; animation: pulse 1.4s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.35;transform:scale(0.75)} }
+  .ticker-scroll { flex: 1; overflow: hidden; position: relative; height: 18px; }
+  .ticker-track {
+    display: flex; gap: 48px; white-space: nowrap;
+    animation: scroll 40s linear infinite;
+    font-size: 12px; color: rgba(255,255,255,0.8);
+  }
+  .ticker-track span { display: inline-flex; align-items: center; gap: 6px; }
+  .ticker-track span::before { content: '·'; color: rgba(255,255,255,0.4); }
+  .ticker-track span:first-child::before { display: none; }
+  @keyframes scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+  .ticker-date { flex-shrink: 0; font-size: 11px; color: rgba(255,255,255,0.55); font-variant-numeric: tabular-nums; }
+  header {
+    padding: 44px 24px 36px;
+    border-bottom: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  .header-inner { max-width: 1160px; margin: 0 auto; position: relative; z-index: 1; }
+  .brand { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; }
+  .brand h1 {
+    font-family: var(--serif); font-size: clamp(26px,4.5vw,46px);
+    font-weight: 700; letter-spacing: 0.05em; line-height: 1.05;
+  }
+  .brand .tag {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.16em;
+    color: var(--muted); border: 1px solid var(--dim);
+    padding: 3px 9px; border-radius: 20px;
+  }
+  .subtitle { color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .subtitle .sep { color: var(--dim); }
+  .meta-row { display: flex; align-items: center; gap: 16px; margin-top: 14px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+  .meta-row .clock { color: var(--gold); font-variant-numeric: tabular-nums; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--card); border: 1px solid var(--border);
+    padding: 3px 10px; border-radius: 6px; font-size: 11px; color: var(--muted);
+  }
+  .badge.ok { border-color: rgba(34,197,94,0.3); color: #22c55e; }
+  .badge.warn { border-color: rgba(212,160,23,0.3); color: var(--gold); }
+  .controls {
+    max-width: 1160px; margin: 20px auto 0; padding: 0 24px;
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  }
+  .btn {
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--txt); padding: 9px 18px; border-radius: 8px;
+    font-size: 13px; font-family: var(--sans); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 7px; transition: all 0.2s;
+  }
+  .btn:hover { background: var(--card-h); border-color: var(--muted); }
+  .btn svg { width: 14px; height: 14px; }
+  .btn-primary { background: var(--red); border-color: var(--red); color: #fff; }
+  .btn-primary:hover { background: #991b1b; border-color: #991b1b; }
+  .auto-label { font-size: 12px; color: var(--muted); margin-left: auto; display: flex; align-items: center; gap: 6px; }
+  .toggle {
+    width: 34px; height: 18px; background: var(--dim);
+    border-radius: 9px; position: relative; cursor: pointer; transition: background 0.3s;
+  }
+  .toggle.active { background: var(--red); }
+  .toggle::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 14px; height: 14px; background: #fff; border-radius: 50%;
+    transition: transform 0.3s;
+  }
+  .toggle.active::after { transform: translateX(16px); }
+  .stats {
+    max-width: 1160px; margin: 20px auto 0; padding: 0 24px;
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .chip {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px;
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12px; color: var(--muted);
+  }
+  .chip .num { font-size: 18px; font-weight: 700; color: var(--txt); font-variant-numeric: tabular-nums; }
+  .chip.info { flex: 1; min-width: 180px; }
+  .chip.info span { color: var(--txt); font-size: 12px; }
+  main { max-width: 1160px; margin: 28px auto; padding: 0 24px; }
+  .section { margin-bottom: 44px; }
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 18px; padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; }
+  .icon.nation { background: linear-gradient(135deg, #991b1b, #7f1d1d); }
+  .icon.hunan { background: linear-gradient(135deg, #1e40af, #1d4ed8); }
+  .sec-title { font-family: var(--serif); font-size: 20px; font-weight: 700; }
+  .sec-sub  { font-size: 11px; color: var(--muted); margin-left: 2px; letter-spacing: 0.06em; }
+  .news-list { display: grid; gap: 10px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 18px 22px;
+    display: grid; grid-template-columns: 40px 1fr auto;
+    gap: 14px; align-items: start; cursor: pointer;
+    transition: all 0.22s; position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 3px; height: 100%; background: var(--red); opacity: 0;
+    transition: opacity 0.22s;
+  }
+  .card:hover { background: var(--card-h); border-color: #3a3a50; transform: translateY(-1px); }
+  .card:hover::before { opacity: 1; }
+  .card.hc::before { background: var(--blue); }
+  .card.hc:hover { border-color: rgba(29,78,216,0.35); }
+  .rank { font-family: var(--serif); font-size: 26px; font-weight: 700; color: var(--dim); line-height: 1; min-width: 32px; }
+  .card:nth-child(1) .rank { color: var(--gold); font-size: 30px; }
+  .card:nth-child(2) .rank { color: #a0a0b8; }
+  .card:nth-child(3) .rank { color: #a07030; }
+  .card-body { min-width: 0; }
+  .card-title { font-size: 14px; font-weight: 500; line-height: 1.55; margin-bottom: 7px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card:hover .card-title { color: #fff; }
+  .card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .src-tag { font-size: 10px; background: var(--surface); color: var(--muted); padding: 2px 7px; border-radius: 4px; border: 1px solid var(--border); }
+  .date-tag { font-size: 10px; color: var(--dim); }
+  .type-tag { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 500; }
+  .type-tag.hot   { background: rgba(185,28,28,0.12); color: #ef4444; }
+  .type-tag.poli  { background: rgba(29,78,216,0.12); color: #3b82f6; }
+  .type-tag.tech  { background: rgba(34,197,94,0.12); color: #22c55e; }
+  .type-tag.cult  { background: rgba(142,68,173,0.12); color: #a855f7; }
+  .type-tag.soc   { background: rgba(212,160,23,0.12); color: #eab308; }
+  .arrow { color: var(--dim); font-size: 16px; transition: transform 0.22s; align-self: start; margin-top: 4px; }
+  .card:hover .arrow { transform: translateX(4px); color: var(--txt); }
+  .skel { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 18px 22px; display: grid; grid-template-columns: 40px 1fr auto; gap: 14px; align-items: center; }
+  .skel-c { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(90deg, var(--border) 25%, var(--card-h) 50%, var(--border) 75%); background-size: 200% 100%; animation: shim 1.4s infinite; }
+  .skel-l { height: 12px; background: linear-gradient(90deg, var(--border) 25%, var(--card-h) 50%, var(--border) 75%); background-size: 200% 100%; animation: shim 1.4s infinite; border-radius: 4px; margin-bottom: 7px; }
+  .skel-l:last-child { width: 55%; margin-bottom: 0; }
+  @keyframes shim { from{background-position:200% 0} to{background-position:-200% 0} }
+  .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
+  .empty .ico { font-size: 40px; margin-bottom: 12px; }
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
+  .modal-bg.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; max-width: 560px; width: 90%; box-shadow: 0 24px 64px rgba(0,0,0,0.6); }
+  .modal h3 { font-family: var(--serif); font-size: 18px; margin-bottom: 6px; }
+  .modal p  { font-size: 12px; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+  .modal textarea { width: 100%; height: 180px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--txt); font-family: monospace; font-size: 12px; padding: 12px; resize: vertical; outline: none; }
+  .modal textarea:focus { border-color: var(--red); }
+  .modal-actions { display: flex; gap: 10px; margin-top: 14px; justify-content: flex-end; }
+  footer { border-top: 1px solid var(--border); padding: 20px 24px; text-align: center; color: var(--muted); font-size: 11px; line-height: 1.8; }
+  .card { opacity: 0; transform: translateY(14px); animation: fadeUp 0.35s forwards; }
+  @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+  .card:nth-child(1){animation-delay:.04s} .card:nth-child(2){animation-delay:.08s}
+  .card:nth-child(3){animation-delay:.12s} .card:nth-child(4){animation-delay:.16s}
+  .card:nth-child(5){animation-delay:.20s} .card:nth-child(6){animation-delay:.24s}
+  .card:nth-child(7){animation-delay:.32s} .card:nth-child(8){animation-delay:.36s}
+  .card:nth-child(9){animation-delay:.40s} .card:nth-child(10){animation-delay:.44s}
+  @media(max-width:640px) {
+    .card { grid-template-columns: 30px 1fr auto; padding: 14px; }
+    .rank { font-size: 20px; }
+    .card-title { font-size: 13px; }
+    header { padding: 24px 16px 20px; }
+    main, .controls, .stats { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="ticker">
+  <div class="ticker-badge"><span class="live-dot"></span>实时速览</div>
+  <div class="ticker-scroll">
+    <div class="ticker-track" id="tickerTrack"></div>
+  </div>
+  <div class="ticker-date" id="tickerDate"></div>
+</div>
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <h1>热点新闻速览</h1>
+      <span class="tag">DAILY BRIEF</span>
+    </div>
+    <div class="subtitle">
+      <span>全国热点</span><span class="sep">|</span>
+      <span>湖南省要闻</span><span class="sep">|</span>
+      <span>每日自动更新</span>
+    </div>
+    <div class="meta-row">
+      <span>上次更新：</span>
+      <span class="clock" id="lastUpdate">--</span>
+      <span style="color:var(--dim)">·</span>
+      <span>下次刷新：<span class="clock" id="nextRefresh">--</span></span>
+      <span class="badge" id="statusBadge">初始化中...</span>
+    </div>
+  </div>
+</header>
+<div class="controls">
+  <button class="btn btn-primary" onclick="doRefresh()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+    刷新新闻
+  </button>
+  <button class="btn" onclick="openModal()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+    手动导入
+  </button>
+  <button class="btn" onclick="exportNews()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    导出数据
+  </button>
+  <button class="btn" onclick="openSource('nation')">📰 全国新闻源</button>
+  <button class="btn" onclick="openSource('hunan')">📰 湖南新闻源</button>
+  <div class="auto-label">
+    <span>自动刷新</span>
+    <div class="toggle active" id="autoToggle" onclick="toggleAuto()"></div>
+    <span>30 分钟</span>
+  </div>
+</div>
+<div class="stats">
+  <div class="chip"><span>今日获取</span><span class="num" id="statTotal">--</span></div>
+  <div class="chip"><span>全国热点</span><span class="num" id="statNation">--</span></div>
+  <div class="chip"><span>湖南要闻</span><span class="num" id="statHunan">--</span></div>
+  <div class="chip info"><span id="statusMsg">数据已加载</span></div>
+</div>
+<main>
+  <div class="section">
+    <div class="section-header">
+      <div class="icon nation">🇨🇳</div>
+      <div><div class="sec-title">全国热点新闻</div><div class="sec-sub">CHINA NATIONAL · HOT NEWS</div></div>
+    </div>
+    <div class="news-list" id="nationGrid"></div>
+  </div>
+  <div class="section">
+    <div class="section-header">
+      <div class="icon hunan">🏔️</div>
+      <div><div class="sec-title">湖南省热点新闻</div><div class="sec-sub">HUNAN PROVINCE · HOT NEWS</div></div>
+    </div>
+    <div class="news-list" id="hunanGrid"></div>
+  </div>
+</main>
+<footer>
+  <p>数据来源：人民日报 / 新华社 / 中国政府网 / 央广网 / 湖南省政府网 · 每30分钟自动刷新 · 仅供信息参考</p>
+  <p>使用「手动导入」功能可粘贴新JSON数据更新内容；「导出数据」可备份当前数据</p>
+</footer>
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3>手动导入新闻数据</h3>
+    <p>将包含新闻条目的 JSON 数组粘贴到下方，例如：<br><code style="color:var(--gold);font-size:11px">[{title:"标题",source:"来源",date:"2026-09-18",type:"tech",url:"链接"}]</code></p>
+    <textarea id="importData" placeholder='[{"title":"新闻标题","source":"来源","date":"2026-09-18","type":"tech","url":"https://..."}]'></textarea>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="doImport()">导入并应用</button>
+    </div>
+  </div>
+</div>
+<script>
+const NEWS_DATA = {
+  nation: [
+    { title:'勿忘九一八撞钟鸣警仪式在沈阳举行，各地纷纷鸣警铭记历史', source:'中国政府网', date:'2026-09-18', type:'cult', url:'https://www.gov.cn/yaowen/liebiao/' },
+    { title:'习近平就发展先进制造业作出重要指示，强调持续做大做强先进制造业', source:'人民日报', date:'2026-09-17', type:'poli', url:'https://data.people.com.cn/pd/rmrb/index.html' },
+    { title:'王毅同美国国务卿鲁比奥通电话，就中美关系交换意见', source:'人民网', date:'2026-09-18', type:'poli', url:'http://www.people.com.cn' },
+    { title:'国办印发《关于进一步加强烟花爆竹全链条安全监管的意见》', source:'光明网', date:'2026-09-18', type:'poli', url:'http://m.toutiao.com/group/7686584810445439529/' },
+    { title:'"净网—2026"专项行动取得阶段性成效，公安机关依法打击网络谣言', source:'央广网', date:'2026-09-17', type:'hot', url:'http://www.cnr.cn/news/index.html' },
+    { title:'中国—上海合作组织绿色产业合作平台系列活动在天津举办', source:'国家发改委', date:'2026-09-16', type:'tech', url:'http://m.toutiao.com/group/7686777165987332642/' },
+    { title:'全国碳市场累计成交量突破9.61亿吨，绿色转型成效显著', source:'人民网', date:'2026-09-18', type:'tech', url:'http://cpc.people.com.cn' },
+    { title:'400余家企业参加2026中国国际应急管理展览会，智慧应急成焦点', source:'人民网', date:'2026-09-11', type:'tech', url:'http://society.people.com.cn' },
+    { title:'今年前8个月我国外贸进出口同比增长，跨境电商成为新引擎', source:'中国网', date:'2026-09-17', type:'poli', url:'http://www.china.com.cn/news/' },
+    { title:'金砖国家领导人第十八次会晤成果丰硕，"中国年"筹备全面启动', source:'中国网', date:'2026-09-13', type:'poli', url:'http://www.china.com.cn/news/' },
+  ],
+  hunan: [
+    { title:'第五届北斗规模应用国际峰会在湘开幕，湖南打造北斗产业国际合作新高地', source:'湖南省政府网', date:'2026-09-18', type:'tech', url:'https://www.hunan.gov.cn/hnyw/zwdt/szdt_sjpx.html' },
+    { title:'毛伟明会见马达加斯加总理，共商北斗合作与经贸往来', source:'湖南省政府网', date:'2026-09-15', type:'poli', url:'http://hunan.gov.cn/hnszf/hnyw/hnyw.html' },
+    { title:'湖南省第十五届运动会在益阳奥林匹克公园体育馆圆满闭幕', source:'湖南省政府网', date:'2026-09-16', type:'cult', url:'http://hunan.gov.cn/hnszf/hnyw/hnyw.html' },
+    { title:'湖南攻关新型烟花药剂破解行业安全环保难题，科技赋能传统产业', source:'湖南省政府网', date:'2026-09-15', type:'tech', url:'https://www.hunan.gov.cn/hnyw/sy/hnyw1/gl_fgsjpx.html' },
+    { title:'2026年湖南省网络安全宣传周在长沙启动，王一鸥出席启动仪式', source:'湖南省政府网', date:'2026-09-15', type:'poli', url:'https://www.hunan.gov.cn/hnyw/sy/hnyw1/gl_fgsjpx.html' },
+    { title:'湖南将启动人工智能专项培训，力争3年内带动30万人次学AI', source:'湖南省人社厅', date:'2026-09-17', type:'tech', url:'https://www.hunan.gov.cn/hnyw/bmdt/szdt_sjpx.html' },
+    { title:'北斗应用国际合作创新基地在株洲揭牌，推动北斗企业协同出海', source:'湖南省政府网', date:'2026-09-16', type:'tech', url:'http://www.hunan.gov.cn/hnszf/wls3/hnyw.html' },
+    { title:'湖南"学有所教"跑出加速度，教育优质均衡发展持续发力', source:'湖南省政府网', date:'2026-09-18', type:'soc', url:'https://www.hunan.gov.cn/hnyw/zwdt/szdt_sjpx.html' },
+    { title:'长沙市启动民族团结进步宣传周，第二届旅游从业人员讲解大赛举行', source:'长沙晚报', date:'2026-09-18', type:'cult', url:'http://m.toutiao.com/group/7686770195003752989/' },
+    { title:'湖南以九大行动提升住房品质，城市更新稳步推进民生改善', source:'央广网', date:'2026-09-13', type:'soc', url:'https://www.cnr.cn/hunan/gstjhunan/' },
+  ]
+};
+let autoRefresh  = true;
+let autoTimer    = null;
+let nationData   = [];
+let hunanData    = [];
+function init() {
+  const saved = loadData();
+  nationData = saved.nation.length ? saved.nation : NEWS_DATA.nation;
+  hunanData  = saved.hunan.length  ? saved.hunan  : NEWS_DATA.hunan;
+  renderAll();
+  buildTicker();
+  startAutoRefresh();
+}
+function loadData() {
+  try {
+    return { nation: JSON.parse(localStorage.getItem('hn_nation') || '[]'), hunan: JSON.parse(localStorage.getItem('hn_hunan') || '[]') };
+  } catch { return { nation: [], hunan: [] }; }
+}
+function saveData() {
+  try {
+    localStorage.setItem('hn_nation', JSON.stringify(nationData));
+    localStorage.setItem('hn_hunan',  JSON.stringify(hunanData));
+  } catch {}
+}
+function renderAll() {
+  renderGrid('nationGrid', nationData, false);
+  renderGrid('hunanGrid',  hunanData,  true);
+  updateStats();
+  updateClock();
+}
+function renderGrid(id, items, isHunan) {
+  const el = document.getElementById(id);
+  if (!items.length) { el.innerHTML = '<div class="empty"><div class="ico">📭</div><p>暂无新闻数据</p></div>'; return; }
+  el.innerHTML = items.map((it, i) => `
+    <a href="${esc(it.url)}" target="_blank" rel="noopener"
+       class="card ${isHunan?'hc':''}" style="animation-delay:${i*0.04}s">
+      <div class="rank">${i+1}</div>
+      <div class="card-body">
+        <div class="card-title">${esc(it.title)}</div>
+        <div class="card-meta">
+          <span class="src-tag">${esc(it.source)}</span>
+          <span class="date-tag">${it.date||''}</span>
+          <span class="type-tag ${it.type||'hot'}">${typeLabel(it.type)}</span>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+    </a>`).join('');
+}
+function typeLabel(t) { return { hot:'热点', poli:'政策', tech:'科技', cult:'文化', soc:'民生' }[t]||'热点'; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function updateStats() {
+  document.getElementById('statTotal').textContent = nationData.length + hunanData.length;
+  document.getElementById('statNation').textContent = nationData.length;
+  document.getElementById('statHunan').textContent  = hunanData.length;
+}
+function updateClock() {
+  const now  = new Date();
+  document.getElementById('lastUpdate').textContent = now.toLocaleString('zh-CN', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+  const next = new Date(now.getTime() + 30*60*1000);
+  document.getElementById('nextRefresh').textContent = next.toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit' });
+}
+function buildTicker() {
+  const all = [...nationData, ...hunanData].slice(0, 15);
+  const track = document.getElementById('tickerTrack');
+  const html  = all.map(it => `<span>${esc(it.title)}</span>`).join('');
+  track.innerHTML = html + html;
+  const now = new Date();
+  document.getElementById('tickerDate').textContent = now.toLocaleDateString('zh-CN', { month:'2-digit', day:'2-digit', weekday:'short' });
+}
+async function doRefresh() {
+  setStatus('fetching','正在尝试加载最新新闻…');
+  await sleep(900);
+  const fresh = await tryFetchFresh();
+  if (fresh && (fresh.nation.length || fresh.hunan.length)) {
+    nationData = fresh.nation.length ? fresh.nation : nationData;
+    hunanData  = fresh.hunan.length  ? fresh.hunan  : hunanData;
+    saveData();
+    setStatus('ok',`已更新 · ${nationData.length+hunanData.length} 条`);
+  } else {
+    setStatus('warn','当前为本地缓存数据，请使用「手动导入」获取最新内容');
+  }
+  renderAll();
+  buildTicker();
+}
+async function tryFetchFresh() { return { nation: [], hunan: [] }; }
+function setStatus(type, msg) {
+  const badge = document.getElementById('statusBadge');
+  const msgEl = document.getElementById('statusMsg');
+  badge.className = 'badge ' + (type==='ok'?'ok': type==='warn'?'warn':'');
+  badge.textContent = type==='ok'?'✓ 在线' : type==='warn'?'◉ 离线模式' : '⏳ 加载中';
+  if (msgEl) msgEl.textContent = msg;
+}
+function openModal() { document.getElementById('modalBg').classList.add('open'); document.getElementById('importData').value = ''; document.getElementById('importData').focus(); }
+function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
+function doImport() {
+  const raw = document.getElementById('importData').value.trim();
+  if (!raw) { alert('请粘贴 JSON 数据'); return; }
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) throw new Error('需要数组格式');
+    const isNation = parsed.some(it => it.url && (it.url.includes('gov.cn') || it.url.includes('people.com.cn') || it.url.includes('xinhuanet.com') || it.url.includes('cnr.cn')));
+    if (isNation) { nationData = parsed.map(normalize); }
+    else { hunanData = parsed.map(normalize); }
+    saveData(); renderAll(); buildTicker(); closeModal();
+    setStatus('ok', `已导入 ${parsed.length} 条`);
+  } catch(e) { alert('JSON 解析失败：' + e.message); }
+}
+function exportNews() {
+  const data = { nation: nationData, hunan: hunanData, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `hot-news-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function normalize(it) {
+  return { title: it.title||'', source: it.source||it.src||'未知来源', date: it.date||formatDate(new Date()), type: ['hot','poli','tech','cult','soc'].includes(it.type)?it.type:'hot', url: it.url||'#' };
+}
+function formatDate(d) { return d.toISOString().slice(0,10); }
+function toggleAuto() {
+  autoRefresh = !autoRefresh;
+  document.getElementById('autoToggle').classList.toggle('active', autoRefresh);
+  if (autoRefresh) startAutoRefresh(); else clearTimeout(autoTimer);
+}
+function startAutoRefresh() {
+  clearTimeout(autoTimer);
+  if (!autoRefresh) return;
+  autoTimer = setTimeout(async () => { await doRefresh(); if (autoRefresh) startAutoRefresh(); }, 30*60*1000);
+}
+function openSource(which) {
+  const urls = { nation:'https://www.gov.cn/yaowen/liebiao/', hunan:'https://www.hunan.gov.cn/hnszf/hnyw/zwdt/szdt_sjpx.html' };
+  window.open(urls[which], '_blank');
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'n' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); openModal(); }
+});
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
